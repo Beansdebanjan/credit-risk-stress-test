@@ -31,19 +31,58 @@ The system is highly modular and entirely **input-driven**. No hardcoding of sho
 
 ## 🧮 The Mathematical Model
 
-The engine calculates a proprietary **StressScore** composed of three heavily weighted risk components:
+The engine calculates a proprietary **StressScore** ($\mathcal{S}$) composed of three weighted risk components: Cashflow ($\mathcal{C}$), Credit Utilization ($\mathcal{U}$), and Debt Burden ($\mathcal{D}$).
 
-1. **Cashflow Penalty (40% Weight):**
-   Evaluates the absolute drop in monthly savings. If post-shock savings drop below zero, the maximum penalty of 40 points is applied immediately.
-2. **Credit Utilization Penalty (30% Weight):**
-   Evaluates the borrower's reliance on credit post-shock. Calculated as `30 * (StressedUtilization / 100)`.
-3. **Debt Burden (DTI) Penalty (30% Weight):**
-   Evaluates the proportion of new income dedicated to EMI. Calculated as `30 * (StressedDTI / 100)`.
+$$ \mathcal{S} = \mathcal{C} + \mathcal{U} + \mathcal{D} $$
 
-**Risk Categorization:**
-- **0 - 33.3:** Low Risk (Resilient)
-- **33.4 - 66.5:** Medium Risk (Monitor)
-- **> 66.6:** High Risk (Immediate Action Required)
+Where $\mathcal{S} \in [0, 100]$.
+
+### 1. Cashflow Penalty ($\mathcal{C}$) - 40% Weight
+Evaluates the absolute drop in monthly savings ($S_{base}$ to $S_{stressed}$). If post-shock savings drop below zero, the maximum penalty is applied.
+
+$$
+\mathcal{C} = 
+\begin{cases} 
+40, & \text{if } S_{stressed} \le 0 \\ 
+40 \times \left( \frac{\max(0, S_{base} - S_{stressed})}{S_{base} + 1} \right) + 1, & \text{if } S_{stressed} > 0 
+\end{cases}
+$$
+
+### 2. Credit Utilization Penalty ($\mathcal{U}$) - 30% Weight
+Evaluates the borrower's reliance on credit post-shock.
+
+$$ \mathcal{U} = 30 \times \left( \frac{\text{Stressed Utilization}}{100} \right) $$
+
+### 3. Debt Burden (DTI) Penalty ($\mathcal{D}$) - 30% Weight
+Evaluates the proportion of new income dedicated to fixed EMI payments. Capped at 1.0 (100% DTI).
+
+$$ \mathcal{D} = 30 \times \min\left( \frac{\text{Stressed DTI}}{100}, 1.0 \right) $$
+
+### 📊 Scoring Logic Workflow
+
+```mermaid
+graph TD
+    A[Stressed Income & Expenses] --> B{S_stressed <= 0?}
+    B -- Yes --> C[Cashflow Penalty = 40]
+    B -- No --> D[Calculate Proportional Drop]
+    D --> E[Cashflow Penalty < 40]
+    
+    F[Stressed Credit Limits] --> G[Calculate Utilization %]
+    G --> H[Utilization Penalty = 30 * U%]
+    
+    I[Stressed DTI] --> J[Calculate DTI %]
+    J --> K[DTI Penalty = 30 * min(DTI, 100%)]
+    
+    C --> L((Sum = StressScore))
+    E --> L
+    H --> L
+    K --> L
+    
+    L --> M{Risk Categorization}
+    M -->|< 33.3| N[🟢 Low Risk]
+    M -->|33.4 - 66.5| O[🟡 Medium Risk]
+    M -->|> 66.6| P[🔴 High Risk]
+```
 
 ---
 
