@@ -62,16 +62,16 @@ $$ \mathcal{D} = 30 \times \min\left( \frac{\text{Stressed DTI}}{100}, 1.0 \righ
 
 ```mermaid
 graph TD
-    A[Stressed Income & Expenses] --> B{S_stressed <= 0?}
+    A[Stressed Income & Expenses] --> B{"S_stressed <= 0?"}
     B -- Yes --> C[Cashflow Penalty = 40]
     B -- No --> D[Calculate Proportional Drop]
     D --> E[Cashflow Penalty < 40]
     
     F[Stressed Credit Limits] --> G[Calculate Utilization %]
-    G --> H[Utilization Penalty = 30 * U%]
+    G --> H["Utilization Penalty = 30 * U%"]
     
     I[Stressed DTI] --> J[Calculate DTI %]
-    J --> K[DTI Penalty = 30 * min(DTI, 100%)]
+    J --> K["DTI Penalty = 30 * min(DTI, 100%)"]
     
     C --> L((Sum = StressScore))
     E --> L
@@ -79,9 +79,9 @@ graph TD
     K --> L
     
     L --> M{Risk Categorization}
-    M -->|< 33.3| N[🟢 Low Risk]
-    M -->|33.4 - 66.5| O[🟡 Medium Risk]
-    M -->|> 66.6| P[🔴 High Risk]
+    M -->|< 33.3| N["🟢 Low Risk"]
+    M -->|33.4 - 66.5| O["🟡 Medium Risk"]
+    M -->|> 66.6| P["🔴 High Risk"]
 ```
 
 ---
