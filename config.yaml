@@ -1,0 +1,8 @@
+input_file: "data/credit_loan_stress_test_dataset_1k.xlsx"
+sheet_name: "Stress_Test_Dataset"
+income_shock_pct: -0.30
+expenditure_shock_pct: 0.20
+utilization_shock_pp: 10
+cap_utilization_at_100: true
+output_dir: "outputs"
+min_income_floor: 1.0
